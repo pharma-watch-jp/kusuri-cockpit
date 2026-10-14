@@ -1,6 +1,225 @@
 {
-  "improved": [],
-  "worsened": [],
-  "new_stopped": [],
+  "improved": [
+    {
+      "yj": "6149003F1090",
+      "name": "クラリスロマイシン錠５０ｍｇ小児用「サワイ」",
+      "maker": "沢井製薬",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "①通常出荷",
+      "changeType": "improved"
+    },
+    {
+      "yj": "1124026F1332",
+      "name": "トフィソパム錠５０ｍｇ「サワイ」",
+      "maker": "沢井製薬",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "①通常出荷",
+      "changeType": "improved"
+    },
+    {
+      "yj": "2646713M1233",
+      "name": "クロベタゾールプロピオン酸エステル軟膏０．０５％「ラクール」",
+      "maker": "東光薬品工業",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "①通常出荷",
+      "changeType": "improved"
+    },
+    {
+      "yj": "2655709R1047",
+      "name": "ケトコナゾール外用ポンプスプレー２％「ＮＲ」",
+      "maker": "東光薬品工業",
+      "from_status": "③限定出荷（他社品の影響）",
+      "to_status": "①通常出荷",
+      "changeType": "improved"
+    },
+    {
+      "yj": "2646726M1125",
+      "name": "デキサメタゾンプロピオン酸エステル軟膏０．１％「ラクール」",
+      "maker": "東光薬品工業",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "①通常出荷",
+      "changeType": "improved"
+    },
+    {
+      "yj": "2646703M1205",
+      "name": "ベタメタゾンジプロピオン酸エステル軟膏０．０６４％「ラクール」",
+      "maker": "東光薬品工業",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "①通常出荷",
+      "changeType": "improved"
+    },
+    {
+      "yj": "6139500F1024",
+      "name": "スルペラゾン静注用０．５ｇ",
+      "maker": "ファイザー",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "①通常出荷",
+      "changeType": "improved"
+    },
+    {
+      "yj": "6139500F2020",
+      "name": "スルペラゾン静注用１ｇ",
+      "maker": "ファイザー",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "①通常出荷",
+      "changeType": "improved"
+    },
+    {
+      "yj": "2129408A1020",
+      "name": "サンリズム注射液５０",
+      "maker": "第一三共",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "①通常出荷",
+      "changeType": "improved"
+    }
+  ],
+  "worsened": [
+    {
+      "yj": "2171022F5245",
+      "name": "アムロジピン錠１０ｍｇ「ＣＨ」",
+      "maker": "長生堂製薬",
+      "from_status": "①通常出荷",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "2190101F1110",
+      "name": "アマルエット配合錠１番「日医工」",
+      "maker": "日医工",
+      "from_status": "③限定出荷（他社品の影響）",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "2900002C1213",
+      "name": "ガンマオリザノール細粒２０％「ツルハラ」",
+      "maker": "鶴原製薬",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "2900002F5290",
+      "name": "ガンマオリザノール錠５０ｍｇ「ツルハラ」",
+      "maker": "鶴原製薬",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "2171010F3096",
+      "name": "ジピリダモール錠１００ｍｇ「ＪＧ」",
+      "maker": "長生堂製薬",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "2149042F1220",
+      "name": "テルミサルタン錠２０ｍｇ「ニプロ」",
+      "maker": "ニプロ",
+      "from_status": "①通常出荷",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "1149117F1284",
+      "name": "トアラセット配合錠「ＫＭＰ」",
+      "maker": "共創未来ファーマ",
+      "from_status": "①通常出荷",
+      "to_status": "③限定出荷（他社品の影響）",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "1179051F1100",
+      "name": "ミルタザピン錠１５ｍｇ「杏林」",
+      "maker": "キョーリンリメディオ",
+      "from_status": "①通常出荷",
+      "to_status": "②限定出荷（自社の事情）",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "2649734S2062",
+      "name": "ナボールテープＬ３０ｍｇ",
+      "maker": "久光製薬",
+      "from_status": "①通常出荷",
+      "to_status": "②限定出荷（自社の事情）",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "1319746Q1070",
+      "name": "レボカバスチン塩酸塩点眼液０．０２５％「わかもと」",
+      "maker": "わかもと製薬",
+      "from_status": "①通常出荷",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "3929400A3246",
+      "name": "重ソー静注７％「ＮＳ」",
+      "maker": "日新製薬",
+      "from_status": "①通常出荷",
+      "to_status": "②限定出荷（自社の事情）",
+      "changeType": "worsened"
+    }
+  ],
+  "new_stopped": [
+    {
+      "yj": "2171022F5245",
+      "name": "アムロジピン錠１０ｍｇ「ＣＨ」",
+      "maker": "長生堂製薬",
+      "from_status": "①通常出荷",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "2190101F1110",
+      "name": "アマルエット配合錠１番「日医工」",
+      "maker": "日医工",
+      "from_status": "③限定出荷（他社品の影響）",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "2900002C1213",
+      "name": "ガンマオリザノール細粒２０％「ツルハラ」",
+      "maker": "鶴原製薬",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "2900002F5290",
+      "name": "ガンマオリザノール錠５０ｍｇ「ツルハラ」",
+      "maker": "鶴原製薬",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "2171010F3096",
+      "name": "ジピリダモール錠１００ｍｇ「ＪＧ」",
+      "maker": "長生堂製薬",
+      "from_status": "②限定出荷（自社の事情）",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "2149042F1220",
+      "name": "テルミサルタン錠２０ｍｇ「ニプロ」",
+      "maker": "ニプロ",
+      "from_status": "①通常出荷",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "1319746Q1070",
+      "name": "レボカバスチン塩酸塩点眼液０．０２５％「わかもと」",
+      "maker": "わかもと製薬",
+      "from_status": "①通常出荷",
+      "to_status": "⑤供給停止",
+      "changeType": "worsened"
+    }
+  ],
   "total_new_items": 0
 }
