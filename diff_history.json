@@ -1,6 +1,48 @@
 {
-  "improved": [],
-  "worsened": [],
+  "improved": [
+    {
+      "yj": "2239001G2027",
+      "name": "ムコソルバンＬ錠４５ｍｇ",
+      "maker": "帝人ファーマ",
+      "from_status": "③限定出荷（他社品の影響）",
+      "to_status": "①通常出荷",
+      "changeType": "improved"
+    },
+    {
+      "yj": "3334403A2208",
+      "name": "ダルテパリンＮａ静注５０００単位／５ｍＬ「ＡＦＰ」",
+      "maker": "共創未来ファーマ",
+      "from_status": "③限定出荷（他社品の影響）",
+      "to_status": "①通常出荷",
+      "changeType": "improved"
+    }
+  ],
+  "worsened": [
+    {
+      "yj": "3321401A2170",
+      "name": "カルバゾクロムスルホン酸ナトリウム静注液２５ｍｇ「日医工」",
+      "maker": "日医工",
+      "from_status": "①通常出荷",
+      "to_status": "②限定出荷（自社の事情）",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "3321401A3185",
+      "name": "カルバゾクロムスルホン酸ナトリウム静注液５０ｍｇ「日医工」",
+      "maker": "日医工",
+      "from_status": "①通常出荷",
+      "to_status": "②限定出荷（自社の事情）",
+      "changeType": "worsened"
+    },
+    {
+      "yj": "3321401A4246",
+      "name": "カルバゾクロムスルホン酸ナトリウム静注液１００ｍｇ「日医工」",
+      "maker": "日医工",
+      "from_status": "①通常出荷",
+      "to_status": "②限定出荷（自社の事情）",
+      "changeType": "worsened"
+    }
+  ],
   "new_stopped": [],
   "total_new_items": 0
 }
