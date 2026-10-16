@@ -387,32 +387,194 @@ def export_data_js(medicine_data, publish_date=None):
     size_mb = os.path.getsize(DATA_JS_PATH) / (1024 * 1024)
     print(f"🎉 data.js の更新が完了しました！（公表日: {publish_date} / ファイルサイズ: {size_mb:.2f} MB）")
 
+import datetime
+from datetime import timezone, timedelta
+
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1486153601364525298/AqaTOZMUJ0TaXCaMCwcMAu10FW_543eQANAyUsLP4oHLcY_eZmo72qqPSkfi1YFEgT_-"
+
+def is_japanese_holiday_today():
+    """
+    今日が「国民の祝日」かどうかを判定（平日であっても祝日ならTrueを返す）。
+    holidays-jp の公式APIを使用。
+    """
+    jst = timezone(timedelta(hours=9))
+    now_jst = datetime.datetime.now(jst).date()
+    today_str = now_jst.strftime("%Y-%m-%d")
+    
+    # 週末（土・日）判定
+    if now_jst.weekday() >= 5:
+        return True, "土日・週末"
+        
+    try:
+        url = "https://holidays-jp.github.io/api/v1/date.json"
+        req = urllib.request.Request(url, headers=get_headers())
+        with urllib.request.urlopen(req, timeout=5) as res:
+            holidays = json.loads(res.read().decode('utf-8'))
+            if today_str in holidays:
+                return True, f"国民の祝日（{holidays[today_str]}）"
+    except Exception as e:
+        print(f"⚠️ 祝日API確認スキップ（通常平日として続行）: {e}")
+        
+    return False, None
+
+def get_current_data_js_publish_date():
+    """
+    手元の data.js から現在の公表日（YYYY-MM-DDのdate型）を取得して返す。
+    """
+    if not os.path.exists(DATA_JS_PATH):
+        return None, None
+    try:
+        with open(DATA_JS_PATH, "r", encoding="utf-8") as f:
+            first_line = f.readline()
+        m = re.search(r'MHLW_PUBLISH_DATE\s*=\s*["\']([^"\']+)["\']', first_line)
+        if m:
+            date_str = m.group(1).strip()
+            # YYYY年M月D日 を datetime.date へ
+            m_dt = re.search(r'(\d{4})年(\d{1,2})月(\d{1,2})日', date_str)
+            if m_dt:
+                d = datetime.date(int(m_dt.group(1)), int(m_dt.group(2)), int(m_dt.group(3)))
+                return d, date_str
+    except Exception as e:
+        print(f"⚠️ data.js 日付抽出エラー: {e}")
+    return None, None
+
+def parse_date_to_object(date_str):
+    """
+    YYYY年M月D日 文字列を datetime.date オブジェクトに変換
+    """
+    if not date_str:
+        return None
+    m = re.search(r'(\d{4})年(\d{1,2})月(\d{1,2})日', date_str)
+    if m:
+        return datetime.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    return None
+
+def send_discord_notification(content):
+    """
+    Discord #アングラ通信 宛てにWebhookでメッセージを送信する
+    """
+    if not DISCORD_WEBHOOK_URL:
+        return
+    try:
+        payload = json.dumps({"content": content}, ensure_ascii=False).encode('utf-8')
+        req = urllib.request.Request(
+            DISCORD_WEBHOOK_URL,
+            data=payload,
+            headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"}
+        )
+        with urllib.request.urlopen(req, timeout=10) as res:
+            pass
+        print("📨 Discord #アングラ通信 へ通知を送信しました。")
+    except Exception as e:
+        print(f"⚠️ Discord通知エラー: {e}")
+
 def main():
     print("=" * 60)
     print(" 🏥 厚生労働省 医薬品供給＆薬価データ 自動同期パイプライン")
     print("=" * 60)
     
+    # 実行引数（第何便か）を取得: 例 python update_mhlw_data.py --slot 1
+    slot_num = "1"
+    is_final_slot = False
+    is_force = False
+    
+    args = sys.argv[1:]
+    for i, arg in enumerate(args):
+        if arg == "--slot" and i + 1 < len(args):
+            slot_num = args[i + 1]
+        elif arg == "--final":
+            is_final_slot = True
+        elif arg == "--force":
+            is_force = True
+            
+    # 日本時間（JST）の現在時刻
+    jst = timezone(timedelta(hours=9))
+    now_jst = datetime.datetime.now(jst)
+    time_str = now_jst.strftime("%H時%M分")
+    
+    # 1. 祝日判定（平日であっても国民の祝日なら実行しない）
+    if not is_force:
+        is_holiday, holiday_name = is_japanese_holiday_today()
+        if is_holiday:
+            print(f"🎌 本日は【{holiday_name}】のため、業務自動同期はスキップします（平日のみ実行）。")
+            sys.exit(0)
+
     try:
-        # 1. 薬価マスターの取得・更新
+        # 2. 現在のコメちゃんの手元日付を取得
+        current_date_obj, current_date_str = get_current_data_js_publish_date()
+        print(f"📌 コメちゃん現在の保持バージョン: {current_date_str} ({current_date_obj})")
+
+        # 3. 厚労省ページの最新Excelリンクと公表日をサッと確認（1秒チェック）
+        excel_url, title, publish_date_str = fetch_latest_supply_excel_url()
+        mhlw_date_obj = parse_date_to_object(publish_date_str)
+        print(f"🏛️ 厚労省サイト上の公表日: {publish_date_str} ({mhlw_date_obj})")
+
+        # 4. 新日付判定: 「厚労省の日付 > コメちゃんの日付」の場合のみ更新を実行！
+        has_new_version = False
+        if is_force:
+            print("⚡ 強制実行フラグ（--force）を検知：日付判定をバイパスしてフル同期します。")
+            has_new_version = True
+        elif mhlw_date_obj and current_date_obj:
+            if mhlw_date_obj > current_date_obj:
+                print(f"🎉 新しい公表データを検知しました！（{current_date_str} ➔ {publish_date_str}）")
+                has_new_version = True
+            else:
+                print(f"✅ 厚労省データはすでに最新です（厚労省: {publish_date_str} <= コメちゃん: {current_date_str}）。")
+        elif mhlw_date_obj and not current_date_obj:
+            has_new_version = True
+        else:
+            print("⚠️ 日付の比較ができませんでした。安全のため通常チェックを行います。")
+            has_new_version = True
+
+        # すでに最新版で差分がない場合
+        if not has_new_version:
+            print(f"⚡ 第{slot_num}便：差分なしのため、Excelの解析・更新は行わず即座に終了します（以降の重い処理をスキップ）。")
+            
+            # 第6便（最終便）でも更新がなかった場合のみ、Discordへ報告
+            if is_final_slot:
+                msg = (
+                    f"🌾 **コメちゃん 本日の更新はありませんでした**\n\n"
+                    f"第{slot_num}便（最終便）までパトロールを完了しましたが、厚生労働省の新しい公表データはありませんでした（現在の最新状態を維持しています）。\n"
+                    f"・現在の公表バージョン: **{current_date_str}**\n"
+                    f"・厚生労働省 医療用医薬品供給状況報告ページ: {MHLW_SUPPLY_URL}"
+                )
+                send_discord_notification(msg)
+            sys.exit(0)
+
+        # 5. 差分あり（新バージョン）：フル更新プロセスを実行！
+        print(f"\n🚀 新バージョン（{publish_date_str}）の取り込みを開始します...")
+        
+        # 薬価マスターの取得・更新
         yakka_dict = fetch_latest_yakka_dictionary()
 
-        # 2. 供給状況Excelの取得（厚労省ページの公式公表日を正確にトレース）
-        excel_url, title, publish_date = fetch_latest_supply_excel_url()
+        # 供給状況Excelのダウンロード＆解析
         download_supply_excel(excel_url)
-
-        # 3. 供給状況と薬価の結合解析
         dataset = parse_excel_to_dataset(DOWNLOAD_SUPPLY_PATH, yakka_dict)
 
-        # 4. 差分検知＆履歴保存
+        # 差分検知＆履歴保存
         detect_diff_and_save(dataset)
 
-        # 5. data.js 出力（厚労省の公式公表日を埋め込み）
-        export_data_js(dataset, publish_date)
-        print("\n✨ すべての工程が正常に完了しました！")
+        # data.js 出力
+        export_data_js(dataset, publish_date_str)
+        print("\n✨ すべてのデータ同期が正常に完了しました！")
+        
+        # Discord #アングラ通信 宛てに「更新成功」を即座にプッシュ通知！
+        success_msg = (
+            f"🌾 **コメちゃん更新完了！**\n\n"
+            f"今日 **第{slot_num}便** で更新が **{time_str}** 完了しました。\n"
+            f"・新公表日: **{publish_date_str}**\n"
+            f"・反映状況: コメちゃん（GitHub Pages）へ最新差分を反映済みです。\n"
+            f"・コメちゃんURL: https://pharma-watch-jp.github.io/kusuri-cockpit/\n"
+            f"・厚労省出典: {MHLW_SUPPLY_URL}"
+        )
+        send_discord_notification(success_msg)
+
     except Exception as e:
         print(f"\n❌ エラーが発生しました: {e}")
         import traceback
         traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
+
