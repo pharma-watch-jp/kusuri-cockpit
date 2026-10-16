@@ -2,12 +2,28 @@ name: Daily MHLW Medicine Supply Auto-Updater
 
 on:
   schedule:
-    # 平日（月〜金） 日本時間 朝 05:04 (UTC 20:04), 06:07 (UTC 21:07), 07:00 (UTC 22:00) に自動実行
+    # 平日（月〜金） 日本時間（JST）1日6便パトロール体制（国民の祝日はスクリプト側で自動判定・スキップ）
+    # 第1便: 05:04 JST (UTC 20:04 前日)
     - cron: '4 20 * * 0-4'
-    - cron: '7 21 * * 0-4'
-    - cron: '0 22 * * 0-4'
+    # 第2便: 07:18 JST (UTC 22:18 前日)
+    - cron: '18 22 * * 0-4'
+    # 第3便: 09:23 JST (UTC 00:23 当日)
+    - cron: '23 0 * * 1-5'
+    # 第4便: 11:18 JST (UTC 02:18 当日)
+    - cron: '18 2 * * 1-5'
+    # 第5便: 12:33 JST (UTC 03:33 当日)
+    - cron: '33 3 * * 1-5'
+    # 第6便: 14:18 JST (UTC 05:18 当日・最終便)
+    - cron: '18 5 * * 1-5'
+
   # 手動でもGitHub画面からポチッと実行できるようにする
   workflow_dispatch:
+    inputs:
+      force:
+        description: '日付に関わらず強制同期するか'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   update-supply-data:
@@ -31,7 +47,29 @@ jobs:
 
       - name: 🚀 厚労省サイトから最新Excelを取得＆data.js差分生成
         run: |
-          python update_mhlw_data.py
+          # 実行された時間（UTC/JST）から何便かを判定して引数へ渡す
+          HOUR=$(date -u +%H)
+          MINUTE=$(date -u +%M)
+          
+          SLOT_ARGS="--slot 1"
+          if [ "$HOUR" -ge 21 ] || [ "$HOUR" -eq 20 -a "$MINUTE" -ge 30 ]; then
+            SLOT_ARGS="--slot 2"
+          elif [ "$HOUR" -eq 0 ] || [ "$HOUR" -eq 1 ]; then
+            SLOT_ARGS="--slot 3"
+          elif [ "$HOUR" -eq 2 ]; then
+            SLOT_ARGS="--slot 4"
+          elif [ "$HOUR" -eq 3 ] || [ "$HOUR" -eq 4 ]; then
+            SLOT_ARGS="--slot 5"
+          elif [ "$HOUR" -ge 5 ]; then
+            SLOT_ARGS="--slot 6 --final"
+          fi
+          
+          # 手動実行で強制フラグがある場合
+          if [ "${{ inputs.force }}" = "true" ]; then
+            SLOT_ARGS="$SLOT_ARGS --force"
+          fi
+          
+          python update_mhlw_data.py $SLOT_ARGS
 
       - name: 📤 更新データが存在する場合のみ自動コミット＆プッシュ
         run: |
