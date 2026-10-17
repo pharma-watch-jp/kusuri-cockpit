@@ -769,16 +769,16 @@
       table-layout: fixed;
     }
 
-    /* 各列の幅指定（出荷状況・出荷量・日付・採用は固定幅、品名と成分名・理由に柔軟幅を配分） */
+    /* 各列の幅指定（出荷状況・出荷量・日付・採用は固定幅、品名と成分名・理由・見込みに柔軟幅を配分） */
     .med-table th:nth-child(1), .med-table td:nth-child(1) { width: 56px; }   /* 採用 */
-    .med-table th:nth-child(2), .med-table td:nth-child(2) { width: 220px; }  /* 品名/製造販売業者 (短め設定で改行) */
-    .med-table th:nth-child(3), .med-table td:nth-child(3) { width: 170px; }  /* 成分名 */
+    .med-table th:nth-child(2), .med-table td:nth-child(2) { width: 210px; }  /* 品名/製造販売業者 */
+    .med-table th:nth-child(3), .med-table td:nth-child(3) { width: 155px; white-space: normal !important; word-break: break-all; }  /* 成分名 */
     .med-table th:nth-child(4), .med-table td:nth-child(4) { width: 105px; min-width: 105px; }  /* 出荷状況（固定） */
-    .med-table th:nth-child(5), .med-table td:nth-child(5) { width: 130px; }  /* 制限理由 */
-    .med-table th:nth-child(6), .med-table td:nth-child(6) { width: 110px; }  /* 見込み・復帰時期 */
+    .med-table th:nth-child(5), .med-table td:nth-child(5) { width: 125px; white-space: normal !important; word-break: break-all; }  /* 制限理由 */
+    .med-table th:nth-child(6), .med-table td:nth-child(6) { width: 135px; white-space: normal !important; word-break: break-all; }  /* 見込み・復帰時期 */
     .med-table th:nth-child(7), .med-table td:nth-child(7) { width: 100px; min-width: 100px; }  /* 出荷量（固定） */
-    .med-table th:nth-child(8), .med-table td:nth-child(8) { width: 75px; min-width: 75px; }   /* 更新日（固定） */
-    .med-table th:nth-child(9), .med-table td:nth-child(9) { width: 100px; }  /* 他社流通状況 */
+    .med-table th:nth-child(8), .med-table td:nth-child(8) { width: 72px; min-width: 72px; }   /* 更新日（固定） */
+    .med-table th:nth-child(9), .med-table td:nth-child(9) { width: 95px; }   /* 他社流通状況 */
 
     .med-table th {
       background: #f8fafc;
@@ -787,7 +787,7 @@
       padding: 6px 8px;
       font-size: 11px;
       border-bottom: 1px solid var(--border);
-      white-space: nowrap;
+      white-space: nowrap !important;
       position: sticky;
       top: 0;
       z-index: 10;
@@ -825,6 +825,7 @@
       border-bottom: 1px solid var(--border-subtle);
       vertical-align: middle;
       word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     .med-table tr:hover td {
@@ -865,7 +866,7 @@
       display: inline-block;
       line-height: 1.35;
       word-break: break-word;
-      overflow-wrap: break-word;
+      overflow-wrap: anywhere;
       cursor: pointer;
     }
     .tbl-med-name:hover {
@@ -875,16 +876,31 @@
     .tbl-ingredient {
       color: #2563eb;
       font-weight: 500;
+      display: block;
+      white-space: normal !important;
+      line-height: 1.35;
+      word-break: break-all;
+      overflow-wrap: anywhere;
     }
 
     .tbl-reason {
       color: #dc2626;
       font-weight: 500;
+      display: block;
+      white-space: normal !important;
+      line-height: 1.35;
+      word-break: break-all;
+      overflow-wrap: anywhere;
     }
 
     .tbl-recovery {
       color: #dc2626;
       font-weight: 500;
+      display: block;
+      white-space: normal !important;
+      line-height: 1.35;
+      word-break: break-all;
+      overflow-wrap: anywhere;
     }
 
     .tbl-adopted-badge {
@@ -3142,19 +3158,19 @@
         }
       }
 
-      // 見込み・復帰時期のスマート合体（ねこさんスタイル：見込み時期を赤字・太字で強調）
+      // 見込み・復帰時期のスマート合体（ねこさんスタイル：見込み時期を赤字・太字で強調＆複数行折り返し対応）
       let recoveryMergedHTML = '<span style="color:#cbd5e1;">-</span>';
       if (hasRealTiming && hasRealRecovery) {
         recoveryMergedHTML = `
-          <div style="font-size:12px; font-weight:700; color:#dc2626;">${escapeHtml(recTiming)}</div>
-          <div style="font-size:11px; color:var(--text-muted);">${escapeHtml(recovery)}</div>
+          <div style="font-size:12px; font-weight:700; color:#dc2626; line-height:1.35; white-space:normal; word-break:break-all; overflow-wrap:anywhere;">${escapeHtml(recTiming)}</div>
+          <div style="font-size:11px; color:var(--text-muted); line-height:1.35; white-space:normal; word-break:break-all; overflow-wrap:anywhere; margin-top:2px;">${escapeHtml(recovery)}</div>
         `;
       } else if (hasRealTiming) {
-        recoveryMergedHTML = `<span style="font-size:12px; font-weight:700; color:#dc2626;">${escapeHtml(recTiming)}</span>`;
+        recoveryMergedHTML = `<div style="font-size:12px; font-weight:700; color:#dc2626; line-height:1.35; white-space:normal; word-break:break-all; overflow-wrap:anywhere;">${escapeHtml(recTiming)}</div>`;
       } else if (hasRealRecovery) {
         const isPending = recovery.includes('未定');
         const colorStyle = isPending ? 'color:#dc2626; font-weight:700;' : 'color:#d97706; font-weight:500;';
-        recoveryMergedHTML = `<span style="${colorStyle}">${escapeHtml(recovery)}</span>`;
+        recoveryMergedHTML = `<div style="${colorStyle} line-height:1.35; white-space:normal; word-break:break-all; overflow-wrap:anywhere;">${escapeHtml(recovery)}</div>`;
       }
 
       const diff = getStatusDiffInfo(row);
@@ -3216,7 +3232,7 @@
               ${escapeHtml(maker)} | YJ: ${escapeHtml(yj)}
             </div>
           </td>
-          <td style="white-space:nowrap;">
+          <td>
             <span class="tbl-ingredient" style="cursor:pointer;" onclick="quickSearch('${escapeHtml(ingredient)}')">${escapeHtml(ingredient)}</span>
           </td>
           <td style="white-space:nowrap;">
@@ -3226,7 +3242,7 @@
           <td>
             ${hasRealReason ? `<span class="tbl-reason">${escapeHtml(reason)}</span>` : '<span style="color:#cbd5e1;">-</span>'}
           </td>
-          <td style="white-space:nowrap;">
+          <td>
             ${recoveryMergedHTML}
           </td>
           <td style="white-space:nowrap;">
