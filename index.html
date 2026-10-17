@@ -1287,24 +1287,46 @@
     }
 
     .substitute-btn {
-      padding: 5px 12px;
+      padding: 4px 10px;
       font-size: 12px;
       font-weight: 600;
-      background: #ffffff;
+      background: #f8fafc;
       border: 1px solid #cbd5e1;
       border-radius: 6px;
-      color: #1e293b;
+      color: #64748b;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
+      white-space: nowrap;
       transition: all 0.15s;
     }
 
-    .substitute-btn:hover {
-      background: #0f172a;
-      color: #ffffff;
-      border-color: #0f172a;
+    .substitute-btn.has-normal {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+    .substitute-btn.has-normal:hover {
+      background: #d1fae5;
+    }
+
+    .substitute-btn.no-normal {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+    .substitute-btn.no-normal:hover {
+      background: #fee2e2;
+    }
+
+    .substitute-btn.solo {
+      background: #f8fafc;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
+    .substitute-btn.solo:hover {
+      background: #f1f5f9;
     }
 
     .substitute-panel {
@@ -2812,13 +2834,19 @@
       const panel = btn.closest('.med-card').querySelector('.substitute-panel');
       if (panel.classList.contains('open')) {
         panel.classList.remove('open');
-        btn.innerHTML = '<span>🔄 代替候補（同成分）を探す</span>';
+        if (btn.dataset.origHtml) {
+          btn.innerHTML = btn.dataset.origHtml;
+        }
         return;
+      }
+
+      if (!btn.dataset.origHtml) {
+        btn.dataset.origHtml = btn.innerHTML;
       }
 
       panel.innerHTML = renderSubstitutesContent(ingredientName, currentYJ, false);
       panel.classList.add('open');
-      btn.innerHTML = '<span>▲ 代替候補を閉じる</span>';
+      btn.innerHTML = '<span>▲ 閉じる</span>';
     }
 
     // テーブル版の展開解除（アコーディオン内ボタン用）
@@ -2992,11 +3020,33 @@
 
       const statusTip = getStatusTip(status);
 
-      const substituteBtnHTML = ingredient ? `
-        <button class="substitute-btn" onclick="toggleSubstitutes(this, '${escapeHtml(ingredient)}', '${escapeHtml(yj)}')">
-          <span>🔄 代替候補（同成分）を探す</span>
-        </button>
-      ` : '';
+      // 同成分の他品目状況の集計（自分自身を除いて判定）
+      const normIng = normalize(ingredient);
+      const ingStat = normIng ? ingredientStatsMap.get(normIng) : null;
+      let substituteBtnHTML = '';
+      if (ingStat) {
+        const otherTotal = ingStat.total - 1;
+        const otherNormal = ingStat.normal - (stType === 0 ? 1 : 0);
+        if (otherTotal <= 0) {
+          substituteBtnHTML = `
+            <button class="substitute-btn solo" onclick="toggleSubstitutes(this, '${escapeHtml(ingredient)}', '${escapeHtml(yj)}')" title="同成分の代替品はありません（クリックで基準薬価を確認）">
+              <span>代替なし</span>
+            </button>
+          `;
+        } else if (otherNormal > 0) {
+          substituteBtnHTML = `
+            <button class="substitute-btn has-normal" onclick="toggleSubstitutes(this, '${escapeHtml(ingredient)}', '${escapeHtml(yj)}')" title="同成分に通常出荷の代替候補があります（クリックで代替薬・薬価差額を展開）">
+              <span>🟢 代替候補</span>
+            </button>
+          `;
+        } else {
+          substituteBtnHTML = `
+            <button class="substitute-btn no-normal" onclick="toggleSubstitutes(this, '${escapeHtml(ingredient)}', '${escapeHtml(yj)}')" title="同成分の代替候補はすべて限定出荷または供給停止です（クリックで詳細・薬価差額を展開）">
+              <span>🔴 代替候補</span>
+            </button>
+          `;
+        }
+      }
 
       let diffBadgeHTML = '';
       if (diff) {
@@ -3076,17 +3126,19 @@
       // 採用バッジ判定
       const isAdopted = yj && myAdoptionYJSet.has(yj);
 
-      // 他社流通状況の集計
+      // 同成分の他品目状況の集計（自分自身を除いて判定）
       const normIng = normalize(ingredient);
       const ingStat = normIng ? ingredientStatsMap.get(normIng) : null;
       let substituteBadgeHTML = '<span style="color:#cbd5e1;">-</span>';
       if (ingStat) {
-        if (ingStat.total <= 1) {
-          substituteBadgeHTML = `<span class="tbl-sub-summary solo" onclick="toggleTableSubstitutes(this, '${escapeHtml(ingredient)}', '${escapeHtml(yj)}')" title="同成分は自社品目のみ（クリックで詳細確認）">単一品目</span>`;
-        } else if (ingStat.normal > 0) {
-          substituteBadgeHTML = `<span class="tbl-sub-summary has-normal" onclick="toggleTableSubstitutes(this, '${escapeHtml(ingredient)}', '${escapeHtml(yj)}')" title="同成分の他社品目に通常出荷があります（クリックで代替薬・薬価差額を展開）">🟢 通常 ${ingStat.normal}社</span>`;
+        const otherTotal = ingStat.total - 1;
+        const otherNormal = ingStat.normal - (stType === 0 ? 1 : 0);
+        if (otherTotal <= 0) {
+          substituteBadgeHTML = `<span class="tbl-sub-summary solo" onclick="toggleTableSubstitutes(this, '${escapeHtml(ingredient)}', '${escapeHtml(yj)}')" title="同成分の代替品はありません（クリックで基準薬価を確認）">代替なし</span>`;
+        } else if (otherNormal > 0) {
+          substituteBadgeHTML = `<span class="tbl-sub-summary has-normal" onclick="toggleTableSubstitutes(this, '${escapeHtml(ingredient)}', '${escapeHtml(yj)}')" title="同成分に通常出荷の代替候補があります（クリックで代替薬・薬価差額を展開）">🟢 代替候補</span>`;
         } else {
-          substituteBadgeHTML = `<span class="tbl-sub-summary no-normal" onclick="toggleTableSubstitutes(this, '${escapeHtml(ingredient)}', '${escapeHtml(yj)}')" title="同成分の他社品目もすべて限定出荷または供給停止です（クリックで他社状況・薬価差額を展開）">⚠️ 全社停止・限定</span>`;
+          substituteBadgeHTML = `<span class="tbl-sub-summary no-normal" onclick="toggleTableSubstitutes(this, '${escapeHtml(ingredient)}', '${escapeHtml(yj)}')" title="同成分の代替候補はすべて限定出荷または供給停止です（クリックで詳細・薬価差額を展開）">🔴 代替候補</span>`;
         }
       }
 
