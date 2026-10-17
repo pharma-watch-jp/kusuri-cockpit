@@ -750,48 +750,57 @@
       box-shadow: 0 1px 2px rgba(0,0,0,0.06);
     }
 
-    /* テーブル表示スタイル（PC大画面特化 & 画面収まり最適化） */
+    /* テーブル表示スタイル（PC大画面特化 & 見出し固定・列罫線・重なり防止最適化） */
     .table-container {
       background: var(--surface);
-      border: 1px solid var(--border);
+      border: 1px solid #cbd5e1;
       border-radius: var(--radius);
       box-shadow: var(--shadow-sm);
       overflow-x: auto;
+      overflow-y: auto;
+      max-height: calc(100vh - 140px);
       margin-bottom: 16px;
       width: 100%;
     }
 
     .med-table {
       width: 100%;
-      border-collapse: collapse;
+      min-width: 1080px;
+      border-collapse: separate;
+      border-spacing: 0;
       font-size: 12px;
       text-align: left;
       table-layout: fixed;
     }
 
-    /* 各列の幅指定（出荷状況・出荷量・日付・採用は固定幅、品名と成分名・理由・見込みに柔軟幅を配分） */
-    .med-table th:nth-child(1), .med-table td:nth-child(1) { width: 56px; }   /* 採用 */
-    .med-table th:nth-child(2), .med-table td:nth-child(2) { width: 210px; }  /* 品名/製造販売業者 */
-    .med-table th:nth-child(3), .med-table td:nth-child(3) { width: 155px; white-space: normal !important; word-break: break-all; }  /* 成分名 */
-    .med-table th:nth-child(4), .med-table td:nth-child(4) { width: 105px; min-width: 105px; }  /* 出荷状況（固定） */
-    .med-table th:nth-child(5), .med-table td:nth-child(5) { width: 125px; white-space: normal !important; word-break: break-all; }  /* 制限理由 */
-    .med-table th:nth-child(6), .med-table td:nth-child(6) { width: 135px; white-space: normal !important; word-break: break-all; }  /* 見込み・復帰時期 */
-    .med-table th:nth-child(7), .med-table td:nth-child(7) { width: 100px; min-width: 100px; }  /* 出荷量（固定） */
-    .med-table th:nth-child(8), .med-table td:nth-child(8) { width: 72px; min-width: 72px; }   /* 更新日（固定） */
-    .med-table th:nth-child(9), .med-table td:nth-child(9) { width: 95px; }   /* 他社流通状況 */
+    /* 各列の幅指定（合計100%でどの画面でも絶対に隣の列と重ならない配分） */
+    .med-table th:nth-child(1), .med-table td:nth-child(1) { width: 5%; }   /* 採用 */
+    .med-table th:nth-child(2), .med-table td:nth-child(2) { width: 20%; }  /* 品名/製造販売業者 */
+    .med-table th:nth-child(3), .med-table td:nth-child(3) { width: 15%; white-space: normal !important; word-break: break-all; }  /* 成分名 */
+    .med-table th:nth-child(4), .med-table td:nth-child(4) { width: 10%; }  /* 出荷状況 */
+    .med-table th:nth-child(5), .med-table td:nth-child(5) { width: 12%; white-space: normal !important; word-break: break-all; }  /* 制限理由 */
+    .med-table th:nth-child(6), .med-table td:nth-child(6) { width: 16%; white-space: normal !important; word-break: break-all; }  /* 見込み・復帰時期（広め確保） */
+    .med-table th:nth-child(7), .med-table td:nth-child(7) { width: 9%; }   /* 出荷量 */
+    .med-table th:nth-child(8), .med-table td:nth-child(8) { width: 5%; }   /* 更新日 */
+    .med-table th:nth-child(9), .med-table td:nth-child(9) { width: 8%; }   /* 他社流通状況 */
 
     .med-table th {
-      background: #f8fafc;
-      color: var(--text-muted);
-      font-weight: 600;
-      padding: 6px 8px;
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      padding: 8px 8px;
       font-size: 11px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 2px solid #cbd5e1;
+      border-right: 1px solid #cbd5e1;
       white-space: nowrap !important;
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 20;
       user-select: none;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+    .med-table th:last-child {
+      border-right: none;
     }
 
     .med-table th.sortable {
@@ -800,12 +809,12 @@
     }
 
     .med-table th.sortable:hover {
-      background: #f1f5f9;
+      background: #e2e8f0;
       color: var(--text);
     }
 
     .med-table th.sorted-active {
-      background: #eff6ff;
+      background: #dbeafe;
       color: var(--primary);
     }
 
@@ -820,12 +829,17 @@
     }
 
     .med-table td {
-      padding: 5px 8px;
+      padding: 6px 8px;
       font-size: 12px;
-      border-bottom: 1px solid var(--border-subtle);
+      border-bottom: 1px solid #cbd5e1;
+      border-right: 1px solid #cbd5e1;
       vertical-align: middle;
       word-break: break-word;
       overflow-wrap: anywhere;
+      overflow: hidden;
+    }
+    .med-table td:last-child {
+      border-right: none;
     }
 
     .med-table tr:hover td {
