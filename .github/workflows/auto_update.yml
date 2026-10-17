@@ -2,7 +2,7 @@ name: Daily MHLW Medicine Supply Auto-Updater
 
 on:
   schedule:
-    # 平日（月〜金） 日本時間（JST）1日6便パトロール体制（国民の祝日はスクリプト側で自動判定・スキップ）
+    # 平日（月〜金） 日本時間（JST）定期パトロール体制（国民の祝日はスクリプト側で自動判定・スキップ）
     # 第1便: 05:04 JST (UTC 20:04 前日)
     - cron: '4 20 * * 0-4'
     # 第2便: 07:18 JST (UTC 22:18 前日)
@@ -13,8 +13,10 @@ on:
     - cron: '18 2 * * 1-5'
     # 第5便: 12:33 JST (UTC 03:33 当日)
     - cron: '33 3 * * 1-5'
-    # 第6便: 14:18 JST (UTC 05:18 当日・最終便)
+    # 第6便: 14:18 JST (UTC 05:18 当日・通常最終便)
     - cron: '18 5 * * 1-5'
+    # 第7便: 16:48 JST (UTC 07:48 当日・金曜日/祝前日 特務便)
+    - cron: '48 7 * * 1-5'
 
   # 手動でもGitHub画面からポチッと実行できるようにする
   workflow_dispatch:
@@ -47,7 +49,14 @@ jobs:
 
       - name: 🚀 厚労省サイトから最新Excelを取得＆data.js差分生成
         run: |
-          # 実行された時間（UTC/JST）から何便かを判定して引数へ渡す
+          # 実行された時間（UTC）から何便かを判定して引数へ渡す
+          # UTC 20:04 = 05:04 JST (第1便)
+          # UTC 22:18 = 07:18 JST (第2便)
+          # UTC 00:23 = 09:23 JST (第3便)
+          # UTC 02:18 = 11:18 JST (第4便)
+          # UTC 03:33 = 12:33 JST (第5便)
+          # UTC 05:18 = 14:18 JST (第6便)
+          # UTC 07:48 = 16:48 JST (第7便 - 金曜/祝前日特務便)
           HOUR=$(date -u +%H)
           MINUTE=$(date -u +%M)
           
@@ -60,8 +69,10 @@ jobs:
             SLOT_ARGS="--slot 4"
           elif [ "$HOUR" -eq 3 ] || [ "$HOUR" -eq 4 ]; then
             SLOT_ARGS="--slot 5"
-          elif [ "$HOUR" -ge 5 ]; then
+          elif [ "$HOUR" -eq 5 ] || [ "$HOUR" -eq 6 ]; then
             SLOT_ARGS="--slot 6 --final"
+          elif [ "$HOUR" -ge 7 ]; then
+            SLOT_ARGS="--slot 7 --final"
           fi
           
           # 手動実行で強制フラグがある場合
@@ -75,7 +86,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data.js prev_medicine_data.json diff_history.json yakka_master.json
+          git add data.js prev_medicine_data.json diff_history.json yakka_master.json last_sync_history.json
           
           # 差分があるかチェック
           if git diff --staged --quiet; then
